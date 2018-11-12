@@ -1,16 +1,20 @@
 package setGame;
 
+
+import java.awt.Graphics;
 import java.awt.Image;
 
 public class Card
 {
-	private int number;
+
+	private String number;
 	private String shape;
 	private String fill;
 	private String color;
 	private Image picture;
 	
-	public Card(int myNum, String myShape, String myFill, String myColor, Image myPic)
+
+	public Card(String myNum, String myShape, String myFill, String myColor, Image myPic)
 	{
 		number = myNum;
 		shape = myShape;
@@ -19,7 +23,8 @@ public class Card
 		picture = myPic;
 	}
 	
-	public int getNumber()
+
+	public String getNumber()
 	{
 		return number;
 	}
@@ -38,6 +43,10 @@ public class Card
 	{
 		return color;
 	}
-	
+
+	public Image getPicture()
+	{
+		return picture;
+	}
 	
 }
