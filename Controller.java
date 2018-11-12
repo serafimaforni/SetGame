@@ -37,7 +37,7 @@ public class Controller extends TimerTask implements MouseListener
 	 {
 		 DeckOfCards deck = new DeckOfCards();
 		 deck.displayDeck();
-	    BufferedImage myPicture = ImageIO.read(new File("setCards.png"));
+	    Image myPicture = deck.getCardImage();
 	    Image[] imageArray = new Image[1];
 	    imageArray[0] = myPicture;
 	 
@@ -96,7 +96,10 @@ public class Controller extends TimerTask implements MouseListener
 		// TODO Auto-generated method stub
 		
 	}
-	public static void main( String args[]) throws IOException{
+	public static void main( String args[]) throws IOException
+	{
+//		DeckOfCards deck = new DeckOfCards();
+//		deck.displayDeck();
        Controller myController = new Controller("Does this work?", 450, 20, 1000, 1000);// window title, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight){
          
 	}

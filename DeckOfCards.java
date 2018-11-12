@@ -45,8 +45,8 @@ public class DeckOfCards
 			
 			randomGenerator = new SecureRandom();
 			
-			final int MAXWIDTH = 97;
-			final int MAXHEIGHT = 54;
+			final int CARDWIDTH = 97;
+			final int CARDHEIGHT = 54;
 			final int MAXROWS = 9;
 			final int MAXCOLUMNS = 9;
 			
@@ -59,7 +59,7 @@ public class DeckOfCards
 				for(int across = 0; across < 9; across++)
 				{
 //					System.out.println(Picture.getWidth() + "x" + Picture.getHeight());
-					tempPic = Picture.getSubimage(across*MAXWIDTH + (across*5), down*MAXHEIGHT + (down*3), MAXWIDTH, MAXHEIGHT);
+					tempPic = Picture.getSubimage(across*CARDWIDTH + (across*5), down*CARDHEIGHT + (down*3), CARDWIDTH, CARDHEIGHT);
 //					System.out.println(tempPic.getWidth() + "x" + tempPic.getHeight());
 					cardPics[currentCard] = tempPic;
 					currentCard++;
@@ -99,10 +99,22 @@ public class DeckOfCards
 				System.out.println(i + ": " +card.getNumber()+ " "+ card.getShape()+ " "+ card.getFill()+ " " + card.getColor());
 			}
 		}
-		public static void main(String[] args) throws IOException
+		public Image getCardImage()
 		{
-			DeckOfCards deck = new DeckOfCards();
-//			deck.displayDeck();
-			
+			int i = 0;
+			Image cardPic = cards[45].getPicture();
+//			for(Card card : cards)
+//			{
+//				i++;
+//				cardPic = card.getPicture();
+//			}
+			return cardPic;
 		}
+		
+//		public static void main(String[] args) throws IOException
+//		{
+//			DeckOfCards deck = new DeckOfCards();
+////			deck.displayDeck();
+//			
+//		}
 }

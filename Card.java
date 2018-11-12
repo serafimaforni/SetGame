@@ -39,9 +39,9 @@ public class Card
 	{
 		return color;
 	}
-	public String getPicture()
+	public Image getPicture()
 	{
-		return picture.toString();
+		return picture;
 	}
 	
 }
