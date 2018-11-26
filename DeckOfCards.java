@@ -10,44 +10,28 @@ import javax.imageio.ImageIO;
 
 public class DeckOfCards 
 {
-		public final int NUMBEROFCARDS = 81;
+		public final static int NUMBEROFCARDS = 81;
 		public Card[] cards;
 
 		public Image[] cardPics = new Image[NUMBEROFCARDS];
 		
-		public final int  ONE = 0;
-		public final int TWO = 1;
-		public final int  THREE = 2;
+		int [] myNum = {1,2,3};
+		int [] myShape = {1,2,3};
+		int [] myFill = {1,2,3};
+		int [] myColor = {1,2,3};
 		
-		public final int RED = 0;
-		public final int GREEN = 27;
-		public final int PURPLE = 54;
-		
-		public final int  DIAMOND = 0;
-		public final int OVAL = 3;
-		public final int  SQUIGGLE = 6;
-		
-		public final int  EMPTY = 0;
-		public final int STRIPE = 9;
-		public final int  SOLID = 18;
-		private int currentCard;
-		private SecureRandom randomGenerator;
+
+		private static SecureRandom randomGenerator;
+
 		
 		public DeckOfCards() throws IOException
 		{
 			cards = new Card[NUMBEROFCARDS];
-			
 
-			String [] myNum = {"One", "Two", "Three"};
-			String [] myShape = {"Diamond", "Oval", "Sqiggle"};
-			String [] myFill = {"Empty", "Stripe", "Solid"};
-			String [] myColor = {"Red", "Green", "Purple"};
-			
-			
 			randomGenerator = new SecureRandom();
 
 			
-			final int CARDWIDTH = 97;
+			final int CARDWIDTH = 100;
 			final int CARDHEIGHT = 54;
 			final int MAXROWS = 9;
 			final int MAXCOLUMNS = 9;
@@ -55,14 +39,12 @@ public class DeckOfCards
 			BufferedImage Picture = ImageIO.read(new File("setCards.png"));
 			BufferedImage tempPic;
 			
-			currentCard = 0;
+			int currentCard = 0;
 			for(int down = 0; down < 9; down++)
 			{
 				for(int across = 0; across < 9; across++)
 				{
-//					System.out.println(Picture.getWidth() + "x" + Picture.getHeight());
-					tempPic = Picture.getSubimage(across*CARDWIDTH + (across*5), down*CARDHEIGHT + (down*3), CARDWIDTH, CARDHEIGHT);
-//					System.out.println(tempPic.getWidth() + "x" + tempPic.getHeight());
+					tempPic = Picture.getSubimage(across*CARDWIDTH + (across*2), down*CARDHEIGHT + (down*3), CARDWIDTH, CARDHEIGHT);
 					cardPics[currentCard] = tempPic;
 					currentCard++;
 					
@@ -82,18 +64,15 @@ public class DeckOfCards
 							
 
 							cards[index] = new Card(myNum[num], myShape[shape], myFill[fill], myColor[color], cardPics[index]);
-							System.out.println(index + ": " + cards[index].getNumber()+ " "+ cards[index].getShape()+ " "+ cards[index].getFill()+ " " + cards[index].getColor()+ " "+ cards[index].getPicture());
 							index++;
 						}
 					}
 				}
 			}
 
-//			System.out.println(cards[GREEN+EMPTY+DIAMOND+ONE].getColor() + cards[RED+EMPTY+DIAMOND+ONE].getShape());
 			
 			
 		}
-		
 		public void displayDeck()
 		{
 			int i = 0;
@@ -104,23 +83,67 @@ public class DeckOfCards
 			}
 		}
 
-		public Image getCardImage()
+		public Image getCardImage(int index)
+
 		{
-			int i = 0;
-			Image cardPic = cards[45].getPicture();
-//			for(Card card : cards)
-//			{
-//				i++;
-//				cardPic = card.getPicture();
-//			}
+			Image cardPic = cards[index].getPicture();
 			return cardPic;
 		}
 
-//		public static void main(String[] args) throws IOException
-//		{
-//			DeckOfCards deck = new DeckOfCards();
-////			deck.displayDeck();
-//			
-//		}
+		public Card getCard(int index)
+		{
+			Card card = cards[index];
+			return card;
+			
+		}
+		public static boolean isThisASet(Card cardA, Card cardB, Card cardC)
+		{
+			boolean match = false;
+			
+			if((cardA.getNumber()+ cardB.getNumber()+ cardC.getNumber()) % 3 == 0)
+			{
+				if((cardA.getShape()+ cardB.getShape()+ cardC.getShape()) % 3 == 0)
+				{
+					if((cardA.getColor()+ cardB.getColor()+ cardC.getColor()) % 3 == 0)
+					{
+						if((cardA.getFill()+ cardB.getFill()+ cardC.getFill()) % 3 == 0)
+						{
+							match = true;
+						}
+					}
+				}
+			}
+			return match;
+			
+		}
+		public static void Shuffle(Card[] cardArray)
+		{
+			for(int first = 0; first < NUMBEROFCARDS; first++)
+			{
+				int dest = randomGenerator.nextInt(NUMBEROFCARDS);
+				Card temp = cardArray[first];
+				cardArray[first] = cardArray[dest];
+				cardArray[dest] = temp;
+			}
+		}
+		
+		public static void main(String[] args) throws IOException
+		{
+			DeckOfCards deck = new DeckOfCards();
+//			deck.displayDeck();
+			Card[] cards = new Card[81];
+			for(int i = 0; i < 81; i++)
+			{
+				cards[i] = deck.getCard(i);
+			}
+			if(isThisASet(cards[1], cards[1], cards[1]))
+			{
+				System.out.println("It is a set");
+			}
+			else
+			{
+				System.out.println("It is not a set");
+			}
+			
+		}
 }
-

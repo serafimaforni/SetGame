@@ -27,7 +27,7 @@ import javax.swing.JOptionPane;
 
 
 
-public class Controller extends TimerTask implements MouseListener, KeyListener
+public class Controller2 extends TimerTask implements MouseListener, KeyListener
 {
 	private JFrame gameJFrame;
     private Container gameContentPane;
@@ -37,10 +37,10 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
     public int[] xPosition = {350, 550, 750};
     public int[] yPosition = {20, 140, 260, 380, 500, 620, 740};
     public int currentCard = 0;
-    public Card[] selectedCards = new Card[3];//Array of selected cards for isThisASet method
+    public Card[] selectedCards = new Card[3];
     public int cardsOnScreen = 0; 
     public DeckOfCards deck = new DeckOfCards();
-    Card[] allCards = new Card[81];//Array of entire deck
+    Card[] allCards = new Card[81];
     public int[] scores = {0, 0, 0, 0};
     public String[] playerNames = new String[4];
     public String[] playerNums = {"W","O","X","N"};
@@ -50,18 +50,15 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 	public int whosTurn;
 	JLabel[] labels = new JLabel[81];
 	boolean cardSpot[] = new boolean[21];
-	int cardsOnTable[] = new int[21];//Array of ints refers back to card position in allCards array
-    int col;//columns 0-3 
-    int row;// rows 0-6
 
     
-	 public Controller(String passedInWindowTitle, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight) throws IOException
+	 public Controller2(String passedInWindowTitle, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight) throws IOException
 	 {
 		 for(int i = 0; i < 81; i++)
 		 {
 			 allCards[i] = deck.getCard(i);
 		 }
-		 DeckOfCards.Shuffle(allCards);
+//		 DeckOfCards.Shuffle(allCards);
 		 for(int i = 0; i < 81; i++)
 		 {
 			 Image myPicture = allCards[i].getPicture();
@@ -129,17 +126,16 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 			 {
 				 if(!cardSpot[(y*3)+x])
 				 {
-					 if(i == numberOfCards)
-					 {
-						 break;
-					 }
-					 labels[currentCard].setBounds(xPosition[x], yPosition[y], 145, 81);
-					 gameJFrame.add(labels[currentCard]);
-					 cardsOnTable[(y*3)+x] = currentCard;
-					 currentCard++;
-					 cardsOnScreen++;
-					 cardSpot[(y*3)+x] = true;
-					 i++;
+				 if(i == numberOfCards)
+				 {
+					 break;
+				 }
+				 labels[currentCard].setBounds(xPosition[x], yPosition[y], 145, 81);
+				 gameJFrame.add(labels[currentCard]);
+				 currentCard++;
+				 cardsOnScreen++;
+				 cardSpot[(y*3)+x] = true;
+				 i++;
 				 }
 			 }
 		 }
@@ -192,55 +188,62 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 				int modNum = cardsOnScreen/3;
 				int x=e.getX();
 			    int y=e.getY();
-			   		
-			    if(x >= xPosition[0] && x <= xPosition[0]+ 145)
-			    {	
-			    	col = 0;
-
-			    }
-			    else if(x >= xPosition[1] && x <= xPosition[1]+ 145)
+			    for(int i = 0; i < modNum; i++)
 			    {
-			    	col = 1;
+				    if(cardFound)
+				    	{
+				    		System.out.println("Card Found");
+				    		break;
+				    	}
+				   for(int j = 0; j < modNum; j++)
+				   {
+					   if(cardFound)
+				    	{
+				    		System.out.println("Card Found");
+				    		cardFound = false;
+				    		break;
+				    	}
+					   if(y >= (yPosition[i%modNum]+20) && y <= (yPosition[i%modNum] + 101))
+					    {
+				    		if(x >= xPosition[j%3] && x <= (xPosition[j%3] + 145))
+				    		{
+				    			cardPos = ((i%modNum)*3)+ j%3;
+				    			System.out.print(allCards[cardPos].getShape());
+				    			System.out.print(allCards[cardPos].getFill());
+				    			System.out.print(allCards[cardPos].getNumber());
+				    			System.out.print(allCards[cardPos].getColor());
+				    			selectedCards[cardsSelected] = allCards[cardPos];
+				    			System.out.print("---------------------");
+//				    			DeckOfCards.isThisASet(selectedCards[0], selectedCards[1], selectedCards[2]);
+//				    			System.out.println(cardsSelected);
+				    			System.out.println(allCards[selectedCards[cardsSelected].getShape()+selectedCards[cardsSelected].getColor()+selectedCards[cardsSelected].getFill()+selectedCards[cardsSelected].getNumber()]);							
+								cardPosArray[cardsSelected] = cardPos;
+								cardsSelected++;
+				    			cardFound = true;
+				    			if(cardsSelected == 3)
+				    			{
+				    				System.out.println(DeckOfCards.isThisASet(selectedCards[0], selectedCards[1], selectedCards[2]));
+				    				if(DeckOfCards.isThisASet(selectedCards[0], selectedCards[1], selectedCards[2]))
+				    				{
+				    					scores[whosTurn]++;
+				    					playerLabel[whosTurn].setText("<html>"+playerNames[whosTurn]+"("+ playerNums[whosTurn]+")"+": " +"<br>"+scores[whosTurn]+"</html>");
+				    					cardSpot[cardPosArray[0]] = false;
+				    					cardSpot[cardPosArray[1]] = false;
+				    					cardSpot[cardPosArray[2]] = false;
+				    					removeCards(cardPosArray[0]);
+				    					removeCards(cardPosArray[1]);
+				    					removeCards(cardPosArray[2]);
+				    					cardPosArray = null;
+				    				}
+				    				cardsSelected = 0;
+				    				playerTurn = false;
+				    				
+				    			}
+				    		}
+				    	}
+				    }
+			    	
 			    }
-
-			    else if(x >= xPosition[2] && x <= xPosition[2]+ 145)
-			    {
-			    	col = 2;
-			    }
-			    if(y >= yPosition[0]+20 && y <= yPosition[0]+ 101)
-			    {	
-			    	row = 0;
-			    }
-			    else if(y >= yPosition[1]+20 && y <= yPosition[1]+ 101)
-			    {
-			    	row = 1;
-			    }
-
-			    else if(y >= yPosition[2]+20 && y <= yPosition[2]+ 101)
-			    {
-			    	row = 2;
-			    }
-			    else if(y >= yPosition[3]+20 && y <= yPosition[3]+ 101)
-			    {
-			    	row = 3;
-			    }
-
-			    else if(y >= yPosition[4]+20 && y <= yPosition[4]+ 101)
-			    {
-			    	row = 4;
-			    }
-			    else if(y >= yPosition[5]+20 && y <= yPosition[5]+ 101)
-			    {
-			    	row = 5;
-			    }
-
-			    else if(y >= yPosition[6]+20 && y <= yPosition[6]+ 101)
-			    {
-			    	row = 6;
-			    }
-			    System.out.println((col) + (row*3));
-			   System.out.println(allCards[cardsOnTable[col+(row*3)]].getFill()+ ","+ allCards[cardsOnTable[col+(row*3)]].getColor()+","+allCards[cardsOnTable[col+(row*3)]].getNumber()+","+allCards[cardsOnTable[col+(row*3)]].getShape());
-			   System.out.println(cardsOnTable[col+(row*3)]);
 			}
 		}
 
@@ -288,7 +291,7 @@ public static void main( String args[]) throws IOException
 	{
 	//		DeckOfCards deck = new DeckOfCards();
 //		deck.displayDeck();
-       Controller myController = new Controller("Does this work?", 450, 20, 1000, 1000);// window title, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight){
+       Controller2 myController = new Controller2("Does this work?", 450, 20, 1000, 1000);// window title, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight){
         
 	}
 }
