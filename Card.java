@@ -5,13 +5,13 @@ import java.awt.Image;
 
 public class Card
 {
-	private String number;
-	private String shape;
-	private String fill;
-	private String color;
+	private int number;
+	private int shape;
+	private int fill;
+	private int color;
 	private Image picture;
 	
-	public Card(String myNum, String myShape, String myFill, String myColor, Image myPic)
+	public Card(int myNum, int myShape, int myFill, int myColor, Image myPic)
 	{
 		number = myNum;
 		shape = myShape;
@@ -20,22 +20,22 @@ public class Card
 		picture = myPic;
 	}
 	
-	public String getNumber()
+	public int getNumber()
 	{
 		return number;
 	}
 	
-	public String getShape()
+	public int getShape()
 	{
 		return shape;
 	}
 	
-	public String getFill()
+	public int getFill()
 	{
 		return fill;
 	}
 	
-	public String getColor()
+	public int getColor()
 	{
 		return color;
 	}
