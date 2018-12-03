@@ -31,20 +31,20 @@ public class DeckOfCards
 			randomGenerator = new SecureRandom();
 
 			
-			final int CARDWIDTH = 100;
-			final int CARDHEIGHT = 54;
-			final int MAXROWS = 9;
-			final int MAXCOLUMNS = 9;
-			
 			BufferedImage Picture = ImageIO.read(new File("setCards.png"));
 			BufferedImage tempPic;
+			
+			final int MAXROWS = 9;
+			final int MAXCOLUMNS = 9;
+			final int CARDWIDTH = (Picture.getWidth())/MAXROWS;
+			final int CARDHEIGHT = (Picture.getHeight())/MAXROWS;
 			
 			int currentCard = 0;
 			for(int down = 0; down < 9; down++)
 			{
 				for(int across = 0; across < 9; across++)
 				{
-					tempPic = Picture.getSubimage(across*CARDWIDTH + (across*2), down*CARDHEIGHT + (down*3), CARDWIDTH, CARDHEIGHT);
+					tempPic = Picture.getSubimage(across*CARDWIDTH, down*CARDHEIGHT, CARDWIDTH, CARDHEIGHT);
 					cardPics[currentCard] = tempPic;
 					currentCard++;
 					
@@ -126,6 +126,7 @@ public class DeckOfCards
 				cardArray[dest] = temp;
 			}
 		}
+
 		
 		public static void main(String[] args) throws IOException
 		{
