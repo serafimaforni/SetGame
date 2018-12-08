@@ -3,6 +3,7 @@ package setGame;
 
 import java.awt.Graphics;
 import java.awt.Image;
+import java.awt.image.BufferedImage;
 
 public class Card
 {
@@ -11,10 +12,10 @@ public class Card
 	private int shape;
 	private int fill;
 	private int color;
-	private Image picture;
+	private BufferedImage picture;
 	
 
-	public Card(int myNum, int myShape, int myFill, int myColor, Image myPic)
+	public Card(int myNum, int myShape, int myFill, int myColor, BufferedImage myPic)
 
 	{
 		number = myNum;
@@ -45,7 +46,7 @@ public class Card
 		return color;
 	}
 
-	public Image getPicture()
+	public BufferedImage getPicture()
 	{
 		return picture;
 	}

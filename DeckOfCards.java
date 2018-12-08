@@ -13,7 +13,7 @@ public class DeckOfCards
 		public final static int NUMBEROFCARDS = 81;
 		public Card[] cards;
 
-		public Image[] cardPics = new Image[NUMBEROFCARDS];
+		public BufferedImage[] cardPics = new BufferedImage[NUMBEROFCARDS];
 		
 		int [] myNum = {1,2,3};
 		int [] myShape = {1,2,3};
@@ -37,7 +37,7 @@ public class DeckOfCards
 			final int MAXROWS = 9;
 			final int MAXCOLUMNS = 9;
 			final int CARDWIDTH = (Picture.getWidth())/MAXROWS;
-			final int CARDHEIGHT = (Picture.getHeight())/MAXROWS;
+			final int CARDHEIGHT = (Picture.getHeight())/MAXCOLUMNS;
 			
 			int currentCard = 0;
 			for(int down = 0; down < 9; down++)
@@ -47,7 +47,6 @@ public class DeckOfCards
 					tempPic = Picture.getSubimage(across*CARDWIDTH, down*CARDHEIGHT, CARDWIDTH, CARDHEIGHT);
 					cardPics[currentCard] = tempPic;
 					currentCard++;
-					
 				}
 				
 			}
@@ -125,26 +124,5 @@ public class DeckOfCards
 				cardArray[first] = cardArray[dest];
 				cardArray[dest] = temp;
 			}
-		}
-
-		
-		public static void main(String[] args) throws IOException
-		{
-			DeckOfCards deck = new DeckOfCards();
-//			deck.displayDeck();
-			Card[] cards = new Card[81];
-			for(int i = 0; i < 81; i++)
-			{
-				cards[i] = deck.getCard(i);
-			}
-			if(isThisASet(cards[1], cards[1], cards[1]))
-			{
-				System.out.println("It is a set");
-			}
-			else
-			{
-				System.out.println("It is not a set");
-			}
-			
 		}
 }

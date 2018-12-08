@@ -2,12 +2,8 @@ package setGame;
 
 import java.awt.Color;
 import java.awt.Container;
-import java.awt.FlowLayout;
 import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
@@ -15,13 +11,10 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.security.SecureRandom;
 import java.util.TimerTask;
 
 import javax.imageio.ImageIO;
-import javax.swing.Icon;
 import javax.swing.ImageIcon;
-import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -33,7 +26,6 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 	private JFrame gameJFrame;
     private Container gameContentPane;
     private boolean playerTurn = false;
-    private static SecureRandom randomGenerator = new SecureRandom();
     private java.util.Timer gameTimer = new java.util.Timer();
     public Image[] imageArray = new Image[81];
     public int[] xPosition = {350, 550, 750};
@@ -55,14 +47,18 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
     int col;//columns 0-3 
     int row;// rows 0-6
 	int[] cardPosArray = new int[3];//For isThisASet method to store the array position to remove cards
+	int[] hintPosArray = new int[3];//For isThereASet method to store matching set positions
 	int cardsOnScreen = 0;
 	int scoreTimer = 30;
 	int playerTimer = 0;
-	JLabel label = new JLabel();
+	BufferedImage brick = ImageIO.read(new File("bricks.jpg"));
+	JLabel label = new JLabel(new ImageIcon(brick));
 	JLabel scoreTimerLabel = new JLabel();
+	JLabel existMessage = new JLabel();
+	int hintCounter = -1;
 
     
-	 public Controller(String passedInWindowTitle, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight) throws IOException
+	 public Controller(String passedInWindowTitle, int gameWindowWidth, int gameWindowHeight) throws IOException
 	 {
 		 for(int i = 0; i < 81; i++)
 		 {
@@ -77,14 +73,14 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 
 		 for(int i = 0; i < labels.length; i++)
 		 { 
-			 Image temp = allCards[i].getPicture();
+			BufferedImage temp = allCards[i].getPicture();
 			 Image newImage = temp.getScaledInstance(145, 81, Image.SCALE_DEFAULT);
 			 JLabel label = new JLabel(new ImageIcon(newImage));
 			 labels[i] = label;
 		 }
         gameJFrame = new JFrame(passedInWindowTitle);
         gameJFrame.setSize(gameWindowWidth, gameWindowHeight);
-        gameJFrame.setLocation(gameWindowX, gameWindowY);
+        gameJFrame.setLocationRelativeTo(null);
         gameJFrame.setResizable(false);
         gameJFrame.addMouseListener(this);
         gameJFrame.addKeyListener(this);
@@ -92,46 +88,66 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
         gameContentPane = gameJFrame.getContentPane();
         gameContentPane.setLayout(null);
         gameContentPane.setBackground(Color.white);
-       
-        numberPlayers=Integer.parseInt(JOptionPane.showInputDialog("Enter Number of Players(1-4): "));
-        int i=0;
-        while(i<numberPlayers){
-           try{
-               playerNames[i]=(JOptionPane.showInputDialog("Enter Name for Player: " + (i+1)+ "("+playerNums[i]+")"));
-               i++;
-            }
-            catch(Exception e){
-                JOptionPane.showMessageDialog(null, "Please enter valid number");
-            }
+        
+
+        Object[] playerNumba = {1,2,3,4};
+        Integer input = (Integer) JOptionPane.showInputDialog(null, "Choose Number Of Players", "Number of Players", JOptionPane.QUESTION_MESSAGE, null, playerNumba, playerNumba[0]);
+        if(input == null)
+        {
+        	System.exit(0);
+        }
+        else
+        {
+	        numberPlayers = input;
+	        for(int i=0;i<numberPlayers;i++) 
+	        {
+	        	playerNames[i]=(JOptionPane.showInputDialog("Enter Name for Player: " + (i+1)+ "("+playerNums[i]+")"));
+	        }
         }
        drawCards(12);
        drawScore(numberPlayers, playerNames, scores);
        gameJFrame.setVisible(true);
        gameTimer.schedule(this, 0, 1000);
-       if(currentCard == 81 && !isThereASet(cardsOnScreen))
-       {
-    	   drawgameOver();
-       }
 	 }
 	 
-	private void drawgameOver() 
+	private void drawgameOver()
 	{
-		
+		JOptionPane.showMessageDialog(null, "No more matches available!");
+		{
+			drawWinner();
+		}
 	}
+	
 
+	public void drawWinner()
+	{
+		int maxScore = scores[0];
+		int playerNumber = 0;
+		int i;
+		for(i=0; i < numberPlayers; i++)
+		{
+			if(maxScore < scores[i])
+			{
+				maxScore = scores[i];
+				playerNumber = i;
+			}
+		}
+		JOptionPane.showMessageDialog(null, playerNames[playerNumber]+" has won the game with "+ maxScore + " points");
+		{
+			System.exit(0);
+		}
+	}
 	public void drawScore(int numberPlayers, String[] playerNames, int[] scores)
 	{
 		label.setBounds(0, 0, 333, 1000);
-		label.setBackground(Color.GRAY);
-		label.setOpaque(true);
 		gameJFrame.add(label);
 		for(int i = 0; i < numberPlayers; i++)
 		{
-			playerLabel[i] = new JLabel("<html>"+playerNames[i]+"("+ playerNums[i]+")"+": " +"<br>"+scores[i]+"</html>");
+			playerLabel[i] = new JLabel(("<html>"+playerNames[i]+"("+ playerNums[i]+")"+": " +"<br>"+scores[i]+"</html>"));
 			playerLabel[i].setBounds(50, (100 +(i*100)), 200, 100);
+			playerLabel[i].setForeground(Color.WHITE);
 			playerLabel[i].setFont(myFont);
-			playerLabel[i].setBackground(Color.GRAY);
-			playerLabel[i].setOpaque(true);
+			playerLabel[i].setOpaque(false);
 			label.add(playerLabel[i]);
 		}
 			gameJFrame.repaint();
@@ -155,7 +171,6 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 					 gameJFrame.add(labels[currentCard]);
 					 cardsOnTable[(y*3)+x] = currentCard;
 					 cardSpot[(y*3)+x] = true;
-					 System.out.println("Card Spot: "+currentCard+", "+cardSpot[(y*3)+x]+", "+cardsOnTable[(y*3)+x]);
 					 currentCard++;
 					 cardsOnScreen++;
 					 i++;
@@ -169,7 +184,6 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 		gameJFrame.remove(labels[cardsOnTable[pos]]);
 		cardSpot[pos] = false;
 		cardsOnScreen--;
-		System.out.println("Card Spot: "+pos+", "+cardsOnTable[pos]+", "+cardSpot[pos]);
 		gameJFrame.repaint();
 	}
 	public void makeBig(int pos)
@@ -185,20 +199,32 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 	public boolean isThereASet(int numCardsOnScreen)
 	{
 		boolean setExists = false;
-		if(numCardsOnScreen == 21)
-		{
-			setExists = true;
-		}
-		else if(numCardsOnScreen < 21 && numCardsOnScreen > 0)
-		{
-			for(int i = 0; i < numCardsOnScreen-1; i++)
+		boolean thisIsASet = false;
+		for(int i = 0; i < numCardsOnScreen; i++)
+		{			
+			for(int j = i+1; j < numCardsOnScreen; j++)
 			{
-				for(int j = 0; j < numCardsOnScreen; j++)
+				for(int k = j+1; k < numCardsOnScreen; k++)
 				{
-					if(DeckOfCards.isThisASet( allCards[cardsOnTable[i]],  allCards[cardsOnTable[i+1]],  allCards[cardsOnTable[j]]))
+					if(cardSpot[i] && cardSpot[j] && cardSpot[k])
 					{
-						setExists = true;
+						if(DeckOfCards.isThisASet( allCards[cardsOnTable[i]],  allCards[cardsOnTable[j]],  allCards[cardsOnTable[k]]))
+						{
+							setExists = true;
+							thisIsASet = true;
+						}
+						else
+						{
+							thisIsASet = false;
+						}
 					}
+						if(thisIsASet)
+						{
+							hintPosArray[0] = i;
+							hintPosArray[1] = j;
+							hintPosArray[2] = k;
+						}
+
 				}
 		
 			}
@@ -207,21 +233,6 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 		return setExists;
 		
 	}
-//	public void randomize()
-//	{
-//		for(int first = 0; first < cardsOnScreen; first++)
-//		{
-//			int dest = randomGenerator.nextInt(cardsOnScreen-1);
-//			int tempPos = cardPosArray[first];
-//			JLabel tempLabel = labels[first];
-//			cardPosArray[first] = cardPosArray[dest];
-//			labels[first] = labels[dest];
-//			cardPosArray[dest] = tempPos;
-//			labels[dest] = tempLabel;
-//			gameJFrame.repaint();
-//		}
-//		
-//	}
 	public void keyPressed(KeyEvent e) 
 	{
 		if(!playerTurn)
@@ -230,43 +241,98 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 			{
 				playerTurn = true;
 				whosTurn = 0;
+				playerLabel[0].setOpaque(true);
 				playerLabel[0].setBackground(Color.GREEN);
-				System.out.println("W");
 			}
-			if(e.getKeyCode() == KeyEvent.VK_O)
+			if(numberPlayers > 1)
 			{
-				playerTurn = true;
-				whosTurn = 1;
-				playerLabel[1].setBackground(Color.RED);
-				System.out.println("O");
+				if(e.getKeyCode() == KeyEvent.VK_O)
+				{
+					playerTurn = true;
+					whosTurn = 1;
+					playerLabel[1].setOpaque(true);
+					playerLabel[1].setBackground(Color.RED);
+				}
 			}
-			if(e.getKeyCode() == KeyEvent.VK_X)
+			if(numberPlayers > 2)
 			{
-				playerTurn = true;
-				whosTurn = 2;
-				playerLabel[2].setBackground(Color.BLUE);
-				System.out.println("X");
+				if(e.getKeyCode() == KeyEvent.VK_X)
+				{
+					playerTurn = true;
+					whosTurn = 2;
+					playerLabel[2].setOpaque(true);
+					playerLabel[2].setBackground(Color.BLUE);
+				}
 			}
-			if(e.getKeyCode() == KeyEvent.VK_N)
+			if(numberPlayers > 3)
 			{
-				playerTurn = true;
-				whosTurn = 3;
-				playerLabel[3].setBackground(Color.YELLOW);
-				System.out.println("N");
+				if(e.getKeyCode() == KeyEvent.VK_N)
+				{
+					playerTurn = true;
+					whosTurn = 3;
+					playerLabel[3].setOpaque(true);
+					playerLabel[3].setBackground(Color.YELLOW);
+				}
 			}
 			if(e.getKeyCode() == KeyEvent.VK_SPACE)
 			{
 				if(currentCard != 81)
 				{
-					scoreTimer = 30;
+					if(isThereASet(cardsOnScreen))
+					{
+						drawExistMessage();
+						for(int i = 0; i < numberPlayers; i++)
+						{
+							scores[i]=scores[i]-5;
+							playerLabel[i].setText("<html>"+playerNames[i]+"("+ playerNums[i]+")"+": " +"<br>"+scores[i]+"</html>");
+						}
+					}
 					drawCards(3);
+					scoreTimer = 30;
 				}
 				else 
 				{
 					drawEndMessage();
 				}
 			}
+			if(e.getKeyCode() == KeyEvent.VK_H)
+			{
+				System.out.println(isThereASet(cardsOnScreen));
+
+				if(isThereASet(cardsOnScreen))
+				{
+				makeBig(cardsOnTable[hintPosArray[0]]);
+				makeBig(cardsOnTable[hintPosArray[1]]);
+				makeBig(cardsOnTable[hintPosArray[2]]);
+				hintCounter = 3;
+				}
+				else
+				{
+					drawHintMessage();
+					hintCounter = 3;
+				}
+			}
 		}
+	}
+	public void drawExistMessage()
+	{
+		existMessage.setBounds(xPosition[0], yPosition[6]+60, 500, 60);
+		existMessage.setFont(myFont);
+		existMessage.setText("There was still a set on board!");
+		existMessage.setBackground(Color.black);
+		gameJFrame.add(existMessage);
+		gameJFrame.repaint();
+		
+	}
+	public void drawHintMessage()
+	{
+		existMessage.setBounds(xPosition[0], yPosition[6]+60, 500, 60);
+		existMessage.setFont(myFont);
+		existMessage.setText("There are no sets on board!");
+		existMessage.setBackground(Color.black);
+		gameJFrame.add(existMessage);
+		gameJFrame.repaint();
+		
 	}
 	public void drawEndMessage()
 	{
@@ -336,10 +402,6 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 				int cardPos = (col) + (row*3);
 				if(cardSpot[cardPos])
 				{
-				   System.out.println((col) + (row*3));
-				   System.out.println(allCards[cardsOnTable[cardPos]].getFill()+ ","+ allCards[cardsOnTable[cardPos]].getColor()+","+allCards[cardsOnTable[cardPos]].getNumber()+","+allCards[cardsOnTable[cardPos]].getShape());
-				   System.out.println(cardsOnTable[cardPos]);
-				   System.out.println(cardSpot[cardPos]);
 				   makeBig(cardsOnTable[cardPos]);
 				   selectedCards[cardsSelected] = allCards[cardsOnTable[cardPos]];
 				   cardPosArray[cardsSelected] = cardPos;
@@ -368,78 +430,73 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 					   }
 					   if(!sameCard)
 					   {
-					   playerLabel[whosTurn].setBackground(Color.GRAY);
-					   playerTurn = false;
-					   cardsSelected = 0;
-					   if(DeckOfCards.isThisASet(selectedCards[0], selectedCards[1], selectedCards[2]))
-					   {
-						   removeCards(cardPosArray[0]);
-						   removeCards(cardPosArray[1]);
-						   removeCards(cardPosArray[2]);
-						   scores[whosTurn]=scores[whosTurn]+scoreTimer;
-						   playerLabel[whosTurn].setText("<html>"+playerNames[whosTurn]+"("+ playerNums[whosTurn]+")"+": " +"<br>"+scores[whosTurn]+"</html>");
-					   }
-					   makeSmall(cardsOnTable[cardPosArray[0]]);
-					   makeSmall(cardsOnTable[cardPosArray[1]]);
-					   makeSmall(cardsOnTable[cardPosArray[2]]);
+						   playerLabel[whosTurn].setOpaque(false);
+						   playerTurn = false;
+						   if(DeckOfCards.isThisASet(selectedCards[0], selectedCards[1], selectedCards[2]))
+						   {
+							   removeCards(cardPosArray[0]);
+							   removeCards(cardPosArray[1]);
+							   removeCards(cardPosArray[2]);
+							   scores[whosTurn]=scores[whosTurn]+scoreTimer;
+							   playerLabel[whosTurn].setText("<html>"+playerNames[whosTurn]+"("+ playerNums[whosTurn]+")"+": " +"<br>"+scores[whosTurn]+"</html>");
+						   }
+						   else
+						   {
+							   scores[whosTurn]=scores[whosTurn]-15;
+							   playerLabel[whosTurn].setText("<html>"+playerNames[whosTurn]+"("+ playerNums[whosTurn]+")"+": " +"<br>"+scores[whosTurn]+"</html>");
+							   makeSmall(cardsOnTable[cardPosArray[0]]);
+							   makeSmall(cardsOnTable[cardPosArray[1]]);
+							   makeSmall(cardsOnTable[cardPosArray[2]]);
+						   }
 					   }
 					   scoreTimer = 30;
+					   cardsSelected = 0;
 				   }
 			    }
 			}
 		}
 
-	@Override
+	public void mouseClicked(MouseEvent arg0) {}
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited(MouseEvent arg0) {}
+	public void mouseReleased(MouseEvent arg0) {}
+	public void keyReleased(KeyEvent e) {}
+	public void keyTyped(KeyEvent e) {}
 	
-
-	public void mouseClicked(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseEntered(MouseEvent e) 
-	{
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseExited(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	public void mouseReleased(MouseEvent arg0) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyReleased(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-
-	@Override
-	public void keyTyped(KeyEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 	public void run() {
-		// TODO Auto-generated method stub
-		System.out.println(scoreTimer);
-		System.out.println(isThereASet(cardsOnScreen));
-		scoreTimerLabel.setText("<HTML>"+"Score Timer: "+"<BR>"+ scoreTimer+"</HTML>");
+		if(hintCounter > 0)
+		{
+			hintCounter--;
+		}
+		if(hintCounter==0)
+		{
+			makeSmall(cardsOnTable[hintPosArray[0]]);
+			makeSmall(cardsOnTable[hintPosArray[1]]);
+			makeSmall(cardsOnTable[hintPosArray[2]]);
+			hintCounter = -1;
+		}
+	       if(currentCard == 81 && !isThereASet(cardsOnScreen))
+	       {
+				drawgameOver();
+	       }
+	       scoreTimerLabel.setForeground(Color.WHITE);
+	       scoreTimerLabel.setText("<HTML>"+"Score Timer: "+"<BR>"+ scoreTimer+"</HTML>");
 	       scoreTimerLabel.setBounds(20, 0, 180, 80);
 	       scoreTimerLabel.setFont(myFont);
 	       scoreTimerLabel.setBackground(Color.GRAY);
 	       label.add(scoreTimerLabel);
 	       gameJFrame.repaint();
+	       if(scoreTimer == 29)
+			{
+				gameJFrame.remove(existMessage);
+				gameJFrame.repaint();
+			}
 	       if(!playerTurn)
 	       {
 				scoreTimer--;
 				if(scoreTimer >= 15)
 				{
-					scoreTimerLabel.setForeground(Color.BLACK);
+					scoreTimerLabel.setForeground(Color.white);
 				}
 				else if(scoreTimer < 15)
 				{
@@ -447,6 +504,11 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 				}
 	    	   if(scoreTimer == 0)
 	    	   {
+	    		   for(int i = 0; i < numberPlayers; i++)
+					{
+						scores[i]=scores[i]-10;
+						playerLabel[i].setText("<html>"+playerNames[i]+"("+ playerNums[i]+")"+": " +"<br>"+scores[i]+"</html>");
+					}
 	    		   scoreTimer = 30;
 	    	   }
 	       }
@@ -455,11 +517,15 @@ public class Controller extends TimerTask implements MouseListener, KeyListener
 	    	   playerTimer++;
 	    	   if(playerTimer == 7)
 	    	   {
-	    		   makeSmall(cardPosArray[0]);
-	    		   makeSmall(cardPosArray[1]);
-	    		   makeSmall(cardPosArray[2]);
+	    		   for(int i = 0; i < cardsSelected; i++)
+	    		   {
+	    			   makeSmall(cardsOnTable[cardPosArray[i]]);
+	    		   }
+	    		   cardsSelected = 0;
 	    		   playerTurn = false;
-	    		   playerLabel[whosTurn].setBackground(Color.GRAY);
+	    		   playerLabel[whosTurn].setOpaque(false);
+				   scores[whosTurn]=scores[whosTurn]-15;
+				   playerLabel[whosTurn].setText("<html>"+playerNames[whosTurn]+"("+ playerNums[whosTurn]+")"+": " +"<br>"+scores[whosTurn]+"</html>");
 	    		   scoreTimer = 30;
 	    		   playerTimer = 0;
 	    	   }
@@ -472,7 +538,7 @@ public static void main( String args[]) throws IOException
 	{
 	//		DeckOfCards deck = new DeckOfCards();
 //		deck.displayDeck();
-       Controller myController = new Controller("Does this work?", 450, 20, 1000, 1000);// window title, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight){
+       Controller myController = new Controller("Set Club", 1000, 1000);// window title, int gameWindowX, int gameWindowY, int gameWindowWidth, int gameWindowHeight){
         
 	}
 }
